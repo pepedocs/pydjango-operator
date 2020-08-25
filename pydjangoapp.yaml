@@ -23,11 +23,12 @@ spec:
             spec:
               type: object
               properties:
-                PyDjangoAppSpec:
-                  type: object
-                  properties:
-                    name:
-                      type: string
+                name:
+                  type: string
+                image:
+                  type: string
+                namespace:
+                  type: string
                 replicas:
                   type: integer
   scope: Namespaced

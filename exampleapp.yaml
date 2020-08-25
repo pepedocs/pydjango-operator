@@ -1,4 +1,9 @@
 apiVersion: pepedocs.org/v1
 kind: PyDjangoApp
 metadata:
-  name: djangoapp
+  name: exampleapp
+spec:
+  name: exampleapp
+  image: rvernica/django:latest
+  namespace: pydjango
+  replicas: 1

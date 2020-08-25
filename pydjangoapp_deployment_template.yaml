@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pydjangoapp
+  labels:
+    app: "{name}"
+spec:
+  replicas: {replicas}
+  selector:
+    matchLabels:
+      app: pydjangoapp
+  template:
+    metadata:
+      labels:
+        app: pydjangoapp
+    spec:
+      containers:
+        - name: pydjangoapp
+          imagePullPolicy: IfNotPresent
+          image: "{image}"
+          command: ["./manage.py", "runserver", "0.0.0.0:8000"]
+          ports:
+          - containerPort: 8000
