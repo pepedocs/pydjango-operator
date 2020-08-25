@@ -1,0 +1,4 @@
+apiVersion: pepedocs.org/v1
+kind: PyDjangoApp
+metadata:
+  name: djangoapp
