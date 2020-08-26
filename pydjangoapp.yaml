@@ -27,8 +27,15 @@ spec:
                   type: string
                 image:
                   type: string
-                namespace:
-                  type: string
                 replicas:
                   type: integer
+                djangoSpec:
+                  type: object
+                  properties:
+                    managePyPath:
+                      type: string
+                    port:
+                      type: integer
+                    host:
+                      type: string
   scope: Namespaced

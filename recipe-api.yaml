@@ -1,0 +1,11 @@
+apiVersion: pepedocs.org/v1
+kind: PyDjangoApp
+metadata:
+  name: recipe-api
+spec:
+  image: pepedocs/recipe-api:latest
+  replicas: 1
+  djangoSpec:
+    managePyPath: "/app/manage.py"
+    host: 0.0.0.0
+    port: 8000
