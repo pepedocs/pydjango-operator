@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pydjangoapp-{{name}}
+  labels:
+    app: pydjangoapp-{{name}}
+spec:
+  replicas: {{replicas}}
+  selector:
+    matchLabels:
+      app: pydjangoapp-{{name}}
+  template:
+    metadata:
+      labels:
+        app: pydjangoapp-{{name}}
+    spec:
+      containers:
+        - name: pydjangoapp-{{name}}
+          imagePullPolicy: IfNotPresent
+          image: {{image}}
+          {% if runScript is not defined %}
+          command: ["python", "{{managePy}}", "runserver", "{{host}}:{{port}}"]
+          {% else %}
+          command: ["{{runScript}}", "{{host}}", "{{port}}"]
+          {% endif %}
+          ports:
+          - containerPort: {{port}}

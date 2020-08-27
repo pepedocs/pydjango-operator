@@ -32,8 +32,13 @@ spec:
                 djangoSpec:
                   type: object
                   properties:
-                    managePyPath:
-                      type: string
+                    paths:
+                      type: object
+                      properties:
+                        managePy:
+                          type: string
+                        runScript:
+                          type: string
                     port:
                       type: integer
                     host:
