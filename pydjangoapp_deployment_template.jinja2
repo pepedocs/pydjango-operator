@@ -18,10 +18,10 @@ spec:
         - name: pydjangoapp-{{name}}
           imagePullPolicy: IfNotPresent
           image: {{image}}
-          {% if runScript is not defined %}
-          command: ["python", "{{managePy}}", "runserver", "{{host}}:{{port}}"]
-          {% else %}
-          command: ["{{runScript}}", "{{host}}", "{{port}}"]
-          {% endif %}
+          {% if runScript is not defined -%}
+            command: ["python", "{{managePy}}", "runserver", "{{host}}:{{port}}"]
+          {% else -%}
+            command: ["{{runScript}}", "{{host}}", "{{port}}"]
+          {% endif -%}
           ports:
           - containerPort: {{port}}

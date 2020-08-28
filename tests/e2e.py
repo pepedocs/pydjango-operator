@@ -1,8 +1,7 @@
-import unittest
-import traceback
 import os
-import urllib3
 import time
+import unittest
+import urllib3
 import subprocess as sp
 import json
 
@@ -28,8 +27,8 @@ def get_e2e_configuration():
     else:
         print('Unable to load config from %s' %
               kube_config.KUBE_CONFIG_DEFAULT_LOCATION)
-        for url in ['https://%s:8443' % DEFAULT_E2E_HOST,
-                    'http://%s:8080' % DEFAULT_E2E_HOST]:
+        for url in ['https://127.0.0.1:8443',
+                    'http://127.0.0.1:8080']:
             try:
                 urllib3.PoolManager().request('GET', url)
                 config.host = url
@@ -58,6 +57,7 @@ class SequentialTestLoader(unittest.TestLoader):
 
 
 class TestPyDjangoOperator(unittest.TestCase):
+    """Test cases for pydjango-operator"""
 
     def setUp(self):
         self.tests_dir = os.path.dirname(__file__)
@@ -65,68 +65,55 @@ class TestPyDjangoOperator(unittest.TestCase):
         self.config = get_e2e_configuration()
         k8s_client = client.api_client.ApiClient(configuration=self.config)
         core_v1 = client.CoreV1Api(api_client=k8s_client)
-        
+
+        # Delete and create a new namespace for every test run
         try:
             core_v1.delete_namespace(name=self.namespace)
         except client.rest.ApiException:
             pass
 
-        retries = 5
+        retries = 10
+
         while retries > 0:
             try:
-                body = client.V1Namespace(metadata=client.V1ObjectMeta(name=self.namespace))
+                body = client.V1Namespace(
+                    metadata=client.V1ObjectMeta(name=self.namespace))
                 core_v1.create_namespace(body=body)
                 break
             except:
-                print('Waiting for the namespace %s to get deleted.' % self.namespace)
-                time.sleep(3)
+                print('Waiting for the namespace %s to get deleted.' %
+                      self.namespace)
+                time.sleep(5)
                 retries -= 1
                 continue
 
-    def tearDown(self):
-        k8s_client = client.api_client.ApiClient(configuration=self.config)
-        core_v1 = client.CoreV1Api(api_client=k8s_client)
-        core_v1.delete_namespace(name=self.namespace)
+        if retries == 0:
+            self.fail('Failed to delete namespace for tests: %s' %
+                      self.namespace)
 
-    def test_create_crd(self):
+    def test_create_pydjangoapp_crd(self):
+        """Test that PyDjangoApp CRD can be created"""
         self.assertTrue(sp.check_call([
-            'kubectl', 
-            'apply', 
-            '-f', 
-            'pydjangoapp.yaml', 
-            '-n', 
+            'kubectl',
+            'apply',
+            '-f',
+            'pydjangoapp.yaml',
+            '-n',
             self.namespace
         ]) == 0)
 
     def test_create(self):
-        sp.check_output([
-            'kubectl', 
-            'get', 
-            'crd', 
-            'pydjangoapps.pepedocs.org', 
-            '-n', 
-            self.namespace, 
-            '-o', 
-            'json'
-        ])
-        self.assertTrue(sp.check_call([
+        """Test that a PyDjangoApp CR can be created"""
+        ret = sp.check_call([
             'kubectl',
             'apply',
             '-f',
             'tests/recipe-api.yaml',
             '-n',
             self.namespace
-        ]) == 0)
-        print(sp.check_output([
-          'kubectl',
-          'get',
-          'deployment',
-          'pythondjango-recipe-api',
-          '-o',
-          'yaml',
-          '-n',
-          self.namespace
-        ]))
+        ])
+        self.assertEqual(ret, 0)
+
 
 if __name__ == "__main__":
     unittest.main(testLoader=SequentialTestLoader())
